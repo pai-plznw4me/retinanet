@@ -21,7 +21,7 @@ class AnchorBox:
     """
 
     def __init__(self):
-        self.aspect_ratios = [1.0]
+        self.aspect_ratios = [0.5, 1.0, 2.0]
         self.scales = [2 ** x for x in [0, 1 / 3, 2 / 3]]
 
         self._num_anchors = len(self.aspect_ratios) * len(self.scales)
