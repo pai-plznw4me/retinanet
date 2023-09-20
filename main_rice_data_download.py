@@ -29,7 +29,7 @@ def extraxct_tarfile(filepath, savedir):
         tar.close()
 
 
-def pascal2coco(pascal_paths):
+def pascal2coco(pascal_paths, image_paths, scale_factor=1, coord_type='xywh'):
     """
     Description:
     pascal dataset 을 coco json 형태로 변환해 반환한다.
@@ -38,8 +38,14 @@ def pascal2coco(pascal_paths):
         :param list pascal_paths: [path0, path1, path2 ..., path N]
     :dict return:
     """
+    assert get_names(pascal_paths, ext=False) == get_names(image_paths, ext=False), '두 리스트 이름 순서와 개 수는 같아야 합니다. '
     coco_datasets = []
-    for pascal_path in pascal_paths:
+    for ind, pascal_path in enumerate(pascal_paths):
+        img_path = image_paths[ind]
+        img = Image.open(img_path)
+        np_img = np.array(img)
+        if not scale_factor == 1:
+            np_img = cv2.resize(np_img, dsize=None, fx=scale_factor, fy=scale_factor)
 
         f = open(pascal_path, 'r')
         xml_str = f.read()
@@ -50,21 +56,41 @@ def pascal2coco(pascal_paths):
         filename = xml_dict['annotation']['filename']
         objects = xml_dict['annotation']['object']
         size = xml_dict['annotation']['size']
-        width, height = float(size['width']), float(size['height'])
+        width, height = float(size['width']) * scale_factor, float(size['height']) * scale_factor
 
         areas = []
         bboxes = []
         for id, obj in enumerate(objects):
-            xmin = float(obj['bndbox']['xmin'])
-            ymin = float(obj['bndbox']['ymin'])
-            xmax = float(obj['bndbox']['xmax'])
-            ymax = float(obj['bndbox']['ymax'])
+            xmin = float(obj['bndbox']['xmin']) * scale_factor
+            ymin = float(obj['bndbox']['ymin']) * scale_factor
+            xmax = float(obj['bndbox']['xmax']) * scale_factor
+            ymax = float(obj['bndbox']['ymax']) * scale_factor
+
+            # add bboxes
+            if coord_type == 'xyxy':
+                bbox = (xmin, ymin, xmax, ymax)
+
+            elif coord_type == 'rel_xyxy':
+                bbox = (xmin / width, ymin / height, xmax / width, ymax / height)
+
+            elif coord_type == 'yxyx':
+                bbox = (ymin, xmin, ymax, xmax)
+
+            elif coord_type == 'rel_yxyx':
+                bbox = (ymin / height, xmin / width, ymax / height, xmax / width)
+            elif coord_type == 'xywh':
+                bbox = ((xmax + xmin) / 2, (ymax + ymin) / 2, (xmax - xmin), (ymax - ymin))
+
+            else:
+                raise NotImplementedError
+
+            bboxes.append(bbox)
+
+            # add bbox area
             x_gap = xmax - xmin
             y_gap = ymax - ymin
             area = x_gap * y_gap
             areas.append(area)
-            bbox = (ymin / height, xmin / width, ymax / height, xmax / width)
-            bboxes.append(bbox)
 
         n_objects = len(bboxes)
         labels = [0] * n_objects
@@ -75,7 +101,7 @@ def pascal2coco(pascal_paths):
         image_ind = 0
         coco_dict['image/filename'] = filename
         coco_dict['image/id'] = image_ind
-        coco_dict['image'] = np.array(img)
+        coco_dict['image'] = np.array(np_img)
         coco_dict['objects'] = {}
 
         coco_dict['objects']['area'] = np.array(areas)
@@ -149,12 +175,12 @@ if __name__ == '__main__':
 
     # 샘플 사진 확인
     image_dir = os.path.join(save_dir, 'JPEGImages')
-    img_paths = all_image_paths(image_dir)
+    img_paths = sorted(all_image_paths(image_dir))
     print('Image 개 수 : {}'.format(len(img_paths)))
 
     # 샘플 사진 확인
     img_index = 0
-    img_names = sorted(get_names(img_paths, ext=False))
+    img_names = get_names(img_paths, ext=False)
     img_name = img_names[img_index]
     img_path = os.path.join(image_dir, img_name + '.jpg')
     img = Image.open(img_path)
@@ -171,10 +197,8 @@ if __name__ == '__main__':
     print('Label 개 수 : {}'.format(len(xml_paths)))
 
     # coco 형식으로 변환
-    coco_datasets = pascal2coco(xml_paths)
-    print(img_name)
+    coco_datasets = pascal2coco(xml_paths, img_paths, 2)
     names = [data['image/filename'] for data in coco_datasets]
-    print(names)
 
     # 데이터 변환 확인
     sample_dict = coco_datasets[img_index]
@@ -186,7 +210,7 @@ if __name__ == '__main__':
     for sample_coord in abs_bboxes.astype(int):
         color = (0, 255, 0)  # 초록색 (BGR 색상 코드)
         thickness = 1  # 선 두께
-        image = cv2.rectangle(np_img, (sample_coord[0], sample_coord[1]), (sample_coord[2], sample_coord[3]), color,
+        image = cv2.rectangle(img, (sample_coord[0], sample_coord[1]), (sample_coord[2], sample_coord[3]), color,
                               thickness)
     plt.imshow(image)
     plt.show()

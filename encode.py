@@ -81,13 +81,14 @@ class LabelEncoder:
 
     def _encode_sample(self, image_shape, gt_boxes, cls_ids):
         """Creates box and classification targets for a single sample"""
-        anchor_boxes = self._anchor_box.get_anchors(image_shape[1], image_shape[2])
+        self.anchor_boxes = self._anchor_box.get_anchors(image_shape[1], image_shape[2])
         cls_ids = tf.cast(cls_ids, dtype=tf.float32)
         matched_gt_idx, positive_mask, ignore_mask = self._match_anchor_boxes(
-            anchor_boxes, gt_boxes
+            self.anchor_boxes, gt_boxes
         )
         matched_gt_boxes = tf.gather(gt_boxes, matched_gt_idx)
-        box_target = self._compute_box_target(anchor_boxes, matched_gt_boxes)
+        matched_gt_boxes = tf.cast(matched_gt_boxes, tf.float32)
+        box_target = self._compute_box_target(self.anchor_boxes, matched_gt_boxes)
         matched_gt_cls_ids = tf.gather(cls_ids, matched_gt_idx)
         cls_target = tf.where(
             tf.not_equal(positive_mask, 1.0), -1.0, matched_gt_cls_ids

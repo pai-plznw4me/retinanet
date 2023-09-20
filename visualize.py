@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import cv2
 
 
 def visualize_detections(
@@ -29,3 +30,18 @@ def visualize_detections(
         )
     plt.show()
     return ax
+
+
+def visualize_bboxes(image, bboxes):
+    # 데이터 시각화
+    bboxes = np.array(bboxes).astype(int)
+    for sample_coord in bboxes:
+        sample_coord.astype('int')
+        color = (0, 255, 0)  # 초록색 (BGR 색상 코드)
+        thickness = 1  # 선 두께
+        image = cv2.rectangle(image.astype(np.uint8), (sample_coord[0], sample_coord[1]),
+                              (sample_coord[2], sample_coord[3]), color,
+                              thickness)
+    plt.imshow(image)
+    plt.show()
+    return image
