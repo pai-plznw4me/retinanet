@@ -1,4 +1,6 @@
 import tensorflow as tf
+from tqdm import tqdm
+import numpy as np
 from anchor import AnchorBox
 
 from iou import compute_iou
@@ -23,7 +25,7 @@ class LabelEncoder:
         )
 
     def _match_anchor_boxes(
-            self, anchor_boxes, gt_boxes, match_iou=0.5, ignore_iou=0.4
+            self, anchor_boxes, gt_boxes, match_iou=0.5, ignore_iou=0.25
     ):
         """Matches ground truth boxes to anchor boxes based on IOU.
 
@@ -100,11 +102,11 @@ class LabelEncoder:
 
     def encode_batch(self, batch_images, gt_boxes, cls_ids):
         """Creates box and classification targets for a batch"""
-        images_shape = tf.shape(batch_images)
+        images_shape = np.shape(batch_images)
         batch_size = images_shape[0]
 
         labels = tf.TensorArray(dtype=tf.float32, size=batch_size, dynamic_size=True)
-        for i in range(batch_size):
+        for i in tqdm(range(batch_size)):
             label = self._encode_sample(images_shape, gt_boxes[i], cls_ids[i])
             labels = labels.write(i, label)
         batch_images = tf.keras.applications.resnet.preprocess_input(batch_images)

@@ -26,6 +26,7 @@ img_paths = sorted(all_image_paths(image_dir))
 # coco 형식으로 변환
 coco_datasets = pascal2coco(xml_paths, img_paths, 2, coord_type='xywh')
 
+
 # get anchors (for test)
 anchor_box = AnchorBox()
 anchor_bboxes = anchor_box.get_anchors(640, 640)
@@ -60,4 +61,8 @@ igr_mask = labels[0][:, -1] == -2
 pos_anchor_xywh = anchor_bboxes[pos_mask].numpy().astype(int)
 pos_anchor_xyxy = convert_to_corners(pos_anchor_xywh)
 
-visualize_bboxes(imgs[0].astype(int), pos_anchor_xyxy)
+# ignore anchor
+igr_anchor_xywh = anchor_bboxes[igr_mask].numpy().astype(int)
+igr_anchor_xyxy = convert_to_corners(igr_anchor_xywh)
+
+visualize_bboxes(imgs[0].astype(int), igr_anchor_xyxy)
