@@ -6,7 +6,7 @@ from anchor import AnchorBox
 from coordinate import convert_to_corners
 from decode import decode_box_predictions
 from encode import LabelEncoder
-from sample_data_download import pascal2coco
+from main_rice_data_download import pascal2coco
 from utils import all_file_paths, filter_xml_paths, all_image_paths
 import numpy as np
 
