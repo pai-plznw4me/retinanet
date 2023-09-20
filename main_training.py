@@ -48,6 +48,7 @@ if __name__ == '__main__':
     model.fit(
         xs,
         ys,
+        batch_size=batch_size,
         epochs=epochs,
         callbacks=callbacks_list,
         verbose=1,
