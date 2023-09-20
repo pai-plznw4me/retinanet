@@ -166,6 +166,7 @@ def preprocess_label(bbox, image_shape, corner=True):
 if __name__ == '__main__':
     # dataset download
     save_dir = os.path.join(os.getcwd(), 'sample_data')
+    os.makedirs(save_dir, exist_ok=True)
     download_rice_drone_dataset(save_dir=save_dir)
 
     # extract dataset
