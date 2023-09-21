@@ -35,10 +35,10 @@ for coco_dataset in tqdm(coco_datasets[:]):
 # generate encode dataset (for resnet backbone)
 imgs = np.array(imgs)
 label_encoder = LabelEncoder()
-preproc_imgs, label_encoder = label_encoder.encode_batch(imgs, annos, labels)
+preproc_imgs, encode_labels = label_encoder.encode_batch(imgs, annos, labels)
 
 # check shape
-print('label shape : {}'.format(labels.shape))
+print('label shape : {}'.format(encode_labels.shape))
 print('image shape : {}'.format(preproc_imgs.shape))
 
 # save dir
@@ -47,7 +47,7 @@ os.makedirs(save_encode_dir, exist_ok=True)
 
 # save encoded label data
 labels_path = os.path.join(save_encode_dir, 'labels.npy')
-np.save(labels_path, labels)
+np.save(labels_path, encode_labels)
 
 # save encoded label data
 images_path = os.path.join(save_encode_dir, 'preproc_resnet_images.npy')
