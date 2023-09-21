@@ -35,7 +35,7 @@ for coco_dataset in tqdm(coco_datasets[:]):
 # generate encode dataset (for resnet backbone)
 imgs = np.array(imgs)
 label_encoder = LabelEncoder()
-preproc_imgs, labels = label_encoder.encode_batch(imgs, annos, labels)
+preproc_imgs, label_encoder = label_encoder.encode_batch(imgs, annos, labels)
 
 # check shape
 print('label shape : {}'.format(labels.shape))

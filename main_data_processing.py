@@ -9,7 +9,6 @@ from encode import LabelEncoder
 from main_rice_data_download import pascal2coco
 from utils import all_file_paths, filter_xml_paths, all_image_paths
 import numpy as np
-
 from visualize import visualize_bboxes
 
 # 라벨링 정보 확인
@@ -53,16 +52,21 @@ anchor_boxes_xyxy = convert_to_corners(anchor_boxes)
 bboxes = decode_box_predictions(anchor_boxes_xyxy, labels)
 
 # mask
-pos_mask = labels[0][:, -1] == 0
+pos_mask = labels[0][:, -1] == 1
 neg_mask = labels[0][:, -1] == -1
 igr_mask = labels[0][:, -1] == -2
 
 # pos anchor
 pos_anchor_xywh = anchor_bboxes[pos_mask].numpy().astype(int)
 pos_anchor_xyxy = convert_to_corners(pos_anchor_xywh)
+# visualize_bboxes(imgs[0].astype(int), pos_anchor_xyxy)
+
+# neg anchor
+neg_anchor_xywh = anchor_bboxes[neg_mask].numpy().astype(int)
+neg_anchor_xyxy = convert_to_corners(neg_anchor_xywh)
+# visualize_bboxes(imgs[0].astype(int), neg_anchor_xyxy)
 
 # ignore anchor
 igr_anchor_xywh = anchor_bboxes[igr_mask].numpy().astype(int)
 igr_anchor_xyxy = convert_to_corners(igr_anchor_xywh)
-
 visualize_bboxes(imgs[0].astype(int), igr_anchor_xyxy)

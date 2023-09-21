@@ -93,12 +93,12 @@ def pascal2coco(pascal_paths, image_paths, scale_factor=1, coord_type='xywh'):
             areas.append(area)
 
         n_objects = len(bboxes)
-        labels = [0] * n_objects
+        labels = [1] * n_objects
         is_crowds = [0] * n_objects
         ids = list(range(n_objects))
 
         # Generate coco dict
-        image_ind = 0
+        image_ind = ind
         coco_dict['image/filename'] = filename
         coco_dict['image/id'] = image_ind
         coco_dict['image'] = np.array(np_img)
