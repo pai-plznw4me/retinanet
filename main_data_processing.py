@@ -38,7 +38,7 @@ labels = [coco_datasets[0]['objects']['label'], coco_datasets[1]['objects']['lab
 # 데이터가 정상적으로 변환 되었는지를 확인하기 위한 코드 (테스트 용)
 for i in range(len(annos)):
     sample_xyxy = convert_to_corners(annos[i])
-    visualize_bboxes(imgs[i].astype(int), sample_xyxy)
+    # visualize_bboxes(imgs[i].astype(int), sample_xyxy)
 
 # label encode
 label_encoder = LabelEncoder()
@@ -47,9 +47,6 @@ preproc_imgs, labels = label_encoder.encode_batch(imgs, annos, labels)
 # generate anchor( 테스트 용)
 anchor_boxes = label_encoder.anchor_boxes
 anchor_boxes_xyxy = convert_to_corners(anchor_boxes)
-
-# decode
-bboxes = decode_box_predictions(anchor_boxes_xyxy, labels)
 
 # mask
 pos_mask = labels[0][:, -1] == 1
@@ -69,4 +66,13 @@ neg_anchor_xyxy = convert_to_corners(neg_anchor_xywh)
 # ignore anchor
 igr_anchor_xywh = anchor_bboxes[igr_mask].numpy().astype(int)
 igr_anchor_xyxy = convert_to_corners(igr_anchor_xywh)
-visualize_bboxes(imgs[0].astype(int), igr_anchor_xyxy)
+# visualize_bboxes(imgs[0].astype(int), igr_anchor_xyxy)
+
+# decode
+bboxes = decode_box_predictions(anchor_boxes, labels)
+pos_bboxes = bboxes[0, pos_mask]
+print(pos_bboxes.shape)
+visualize_bboxes(imgs[0].astype(int), pos_bboxes[:10])
+
+
+

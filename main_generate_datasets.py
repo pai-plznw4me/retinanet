@@ -1,6 +1,3 @@
-"""
-tensorflow 을 활용해 retinanet 에 입력될 data 을 전처리합니다.
-"""
 import os
 import numpy as np
 from encode import LabelEncoder
@@ -41,7 +38,7 @@ preproc_imgs, encode_labels = label_encoder.encode_batch(imgs, annos, labels)
 print('label shape : {}'.format(encode_labels.shape))
 print('image shape : {}'.format(preproc_imgs.shape))
 
-# save dir
+# make save dir
 save_encode_dir = os.path.join(os.getcwd(), 'sample_data', 'Riceseedlingdetection', 'Encode')
 os.makedirs(save_encode_dir, exist_ok=True)
 
